@@ -1,12 +1,16 @@
+/**
+ * @file    simulation.hpp
+ * @brief   Defines the high-level simulation functions.
+ *
+ * This file contains the declaration of the simulate_step function, which is responsible for 
+ * stepping the particles forward in time.
+ *
+ * Notes:
+ *     - [important design decisions, caveats, etc.]
+ */
+
 #pragma once
-#include <vector>
 
-struct Particle {
-    float x, y, z; // Position
-};
+#include "types.hpp" // This contains the base structs.
 
-struct Velocity {
-    float vx, vy, vz; // Velocity
-};
-
-void simulate_step(Particle* particles, Velocity* velocities, int count, float dt);
+void simulate_step(Particle* particles, MeshTile* meshes, int N, int M, float dt);

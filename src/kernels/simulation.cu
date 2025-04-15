@@ -1,32 +1,33 @@
 #include "simulation.cuh"
 
-__global__ void step_kernel(Particle* particles, Velocity* velocities, int count, float dt){
+__global__ void step_kernel(Particle* particles, MeshTile* meshes, int N, int M, float dt){
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < count){
-        particles[idx].x += velocities[idx].vx * dt;
-        particles[idx].y += velocities[idx].vy * dt;
-        particles[idx].z += velocities[idx].vz * dt;
+    if (idx < N + M){
+        // I'm here
+        particles[idx].posx += particles[idx].vx * dt;
+        particles[idx].posy += particles[idx].vy * dt;
+        particles[idx].posz += particles[idx].vz * dt;
     }
 }
 
-void simulate_step_gpu(Particle* particles, Velocity* velocities, int count, float dt){
+void simulate_step_gpu(Particle* particles, MeshTile* meshes, int N, int M, float dt){
     Particle* d_particles;
-    Velocity* d_velocities;
-    size_t size = count * sizeof(Particle);
-    size_t vel_size = count * sizeof(Velocity);
+    MeshTile* d_meshes;
+    size_t size = N * sizeof(Particle);
+    size_t mesh_size = M * sizeof(MeshTile);
 
     cudaMalloc(&d_particles, size);
-    cudaMalloc(&d_velocities, vel_size);
+    cudaMalloc(&d_meshes, mesh_size);
 
     cudaMemcpy(d_particles, particles, size, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_velocities, velocities, vel_size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_meshes, meshes, M, cudaMemcpyHostToDevice);
 
-    step_kernel<<<(count + 255) / 256, 256>>>(d_particles, d_velocities, count, dt);
+    step_kernel<<<(N + M + 255) / 256, 256>>>(d_particles, d_meshes, N, M, dt);
     cudaDeviceSynchronize();
 
     cudaMemcpy(particles, d_particles, size, cudaMemcpyDeviceToHost);
-    cudaMemcpy(velocities, d_velocities, vel_size, cudaMemcpyDeviceToHost);
+    cudaMemcpy(meshes, d_meshes, mesh_size, cudaMemcpyDeviceToHost);
 
     cudaFree(d_particles);
-    cudaFree(d_velocities);
+    cudaFree(d_meshes);
 }

@@ -15,21 +15,27 @@ def test_step():
     """
     
     particles = [pyfluid.Particle()]
-    particles[0].x = 0.0
-    particles[0].y = 0.0
-    particles[0].z = 0.0
+    particles[0].posx = 0.0
+    particles[0].posy = 0.0
+    particles[0].posz = 0.0
+    particles[0].vx = 1.0
+    particles[0].vy = 0.0
+    particles[0].vz = 0.0
+    particles[0].mass = 1.0
+    particles[0].mesh_id = 1
 
-    velocities = [pyfluid.Velocity()]
-    velocities[0].vx = 1.0
-    velocities[0].vy = 0.0
-    velocities[0].vz = 0.0
+    meshes = [pyfluid.MeshTile()]
+    meshes[0].id = 1
+    meshes[0].posx = 0.0
+    meshes[0].posy = 0.0
+    meshes[0].posz = 0.0
+
+    x,m = pyfluid.simulate_step(particles, meshes, 1, 1, 0.1)
     
-    x,v = pyfluid.simulate_step(particles, velocities, 1, 0.1)
-    
-    assert x[0].x <= 0.1 + 1e-5 and x[0].x >= 0.1 - 1e-5
-    assert x[0].y == 0.0
-    assert x[0].z == 0.0
-    assert v[0].vx == 1.0
-    assert v[0].vy == 0.0
-    assert v[0].vz == 0.0
+    assert x[0].posx <= 0.1 + 1e-5 and x[0].posx >= 0.1 - 1e-5
+    assert x[0].posy == 0.0
+    assert x[0].posz == 0.0
+    assert x[0].vx == 1.0
+    assert x[0].vy == 0.0
+    assert x[0].vz == 0.0
     
