@@ -3,7 +3,7 @@
 build:
 	@echo "Building the project..."
 	mkdir -p build
-	cd build && cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release
+	cd build && cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 	cd build && ninja
 
 # Copies the custom python package to the active virtualenv:
@@ -23,3 +23,6 @@ install:
 		
 clean:
 	rm -rf build
+
+test:
+	pytest tests/

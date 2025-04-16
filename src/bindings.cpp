@@ -23,14 +23,36 @@ PYBIND11_MODULE(pyfluid, m) {
         .def_readwrite("posz", &MeshTile::posz)
         .def_readwrite("size", &MeshTile::size)
         .def_readwrite("id", &MeshTile::id)
-        .def_readwrite("density", &MeshTile::density)
-        .def_readwrite("avg_velx", &MeshTile::avg_velx)
-        .def_readwrite("avg_vely", &MeshTile::avg_vely)
-        .def_readwrite("avg_velz", &MeshTile::avg_velz)
+        .def_readwrite("N_particle", &MeshTile::N_particle)
+        .def_readwrite("velx", &MeshTile::velx)
+        .def_readwrite("vely", &MeshTile::vely)
+        .def_readwrite("velz", &MeshTile::velz)
+        .def_readwrite("velx2", &MeshTile::velx2)
+        .def_readwrite("vely2", &MeshTile::vely2)
+        .def_readwrite("velz2", &MeshTile::velz2)
         .def_readwrite("pressure", &MeshTile::pressure);
 
-    m.def("simulate_step", [](std::vector<Particle>& particles, std::vector<MeshTile>& meshes, int N, int M, float dt) {
-        simulate_step(particles.data(), meshes.data(), static_cast<int>(particles.size()), static_cast<int>(meshes.size()), dt);
+    py::class_<Params>(m, "Params")
+        .def(py::init<>())
+        .def_readwrite("minx", &Params::minx)
+        .def_readwrite("miny", &Params::miny)
+        .def_readwrite("minz", &Params::minz)
+        .def_readwrite("maxx", &Params::maxx)
+        .def_readwrite("maxy", &Params::maxy)
+        .def_readwrite("maxz", &Params::maxz)
+        .def_readwrite("N_tiles_x", &Params::N_tiles_x)
+        .def_readwrite("N_tiles_y", &Params::N_tiles_y)
+        .def_readwrite("N_tiles_z", &Params::N_tiles_z)
+        .def_readwrite("tile_size_x", &Params::tile_size_x)
+        .def_readwrite("tile_size_y", &Params::tile_size_y)
+        .def_readwrite("tile_size_z", &Params::tile_size_z)
+        .def_readwrite("num_tiles", &Params::num_tiles)
+        .def_readwrite("num_particles", &Params::num_particles)
+        .def_readwrite("dt", &Params::dt)
+        .def_readwrite("Nstep", &Params::Nstep);
+
+    m.def("simulate_step", [](std::vector<Particle>& particles, std::vector<MeshTile>& meshes, Params* parameters) {
+        simulate_step(particles.data(), meshes.data(), parameters);
         return std::make_pair(particles, meshes);
     });
 

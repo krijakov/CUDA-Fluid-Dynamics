@@ -13,4 +13,4 @@
 
 #include "types.hpp" // This contains the base structs.
 
-void simulate_step(Particle* particles, MeshTile* meshes, int N, int M, float dt);
+void simulate_step(Particle* particles, MeshTile* meshes, Params* parameters);

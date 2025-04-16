@@ -30,7 +30,12 @@ def test_step():
     meshes[0].posy = 0.0
     meshes[0].posz = 0.0
 
-    x,m = pyfluid.simulate_step(particles, meshes, 1, 1, 0.1)
+    params = pyfluid.Params()
+    params.dt = 0.1
+    params.num_particles = 1
+    params.num_tiles = 1
+
+    x,m = pyfluid.simulate_step(particles, meshes, params)
     
     assert x[0].posx <= 0.1 + 1e-5 and x[0].posx >= 0.1 - 1e-5
     assert x[0].posy == 0.0
