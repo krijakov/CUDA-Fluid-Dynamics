@@ -1,10 +1,17 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include "fluid_sim/simulation.hpp"
-
+#include "fluid_sim/spatial_hashing.hpp"
 namespace py = pybind11;
 
-PYBIND11_MODULE(pyfluid, m) {
+// helper to turn a 3‐tuple into float3:
+static float3 to_float3(const py::tuple &t)
+{
+    return {t[0].cast<float>(), t[1].cast<float>(), t[2].cast<float>()};
+}
+
+PYBIND11_MODULE(pyfluid, m)
+{
     py::class_<Particle>(m, "Particle")
         .def(py::init<>())
         .def_readwrite("posx", &Particle::posx)
@@ -49,11 +56,33 @@ PYBIND11_MODULE(pyfluid, m) {
         .def_readwrite("num_tiles", &Params::num_tiles)
         .def_readwrite("num_particles", &Params::num_particles)
         .def_readwrite("dt", &Params::dt)
-        .def_readwrite("Nstep", &Params::Nstep);
+        .def_readwrite("Nstep", &Params::Nstep)
+        .def_readwrite("geometry_type", &Params::geometry_type);
 
-    m.def("simulate_step", [](std::vector<Particle>& particles, std::vector<MeshTile>& meshes, Params* parameters) {
+    m.def("simulate_step", [](std::vector<Particle> &particles, std::vector<MeshTile> &meshes, Params *parameters)
+          {
         simulate_step(particles.data(), meshes.data(), parameters);
-        return std::make_pair(particles, meshes);
-    });
+        return std::make_pair(particles, meshes); });
 
+    //--------------------------------------Testing--------------------------------------
+    // Spatial hashing:
+    m.def("cubic_grid_hash",
+        [](py::tuple pos, const Params &P) {
+          return cubic_grid_hash(to_float3(pos), &P);
+        },
+        py::arg("pos"), py::arg("params"));
+
+        m.def("position_to_mesh_id",
+            [](py::tuple pos, const Params &P) {
+              return position_to_mesh_id(to_float3(pos), &P);
+            },
+            py::arg("pos"), py::arg("params"));
+    
+      m.def("get_neighbour_mesh_ids",
+            [](int mesh_id, const Params &P) {
+              std::array<int,6> out;
+              get_neighbour_mesh_ids(mesh_id, out.data(), &P);
+              return out;   // pybind will convert std::array→tuple/list
+            },
+            py::arg("mesh_id"), py::arg("params"));
 }

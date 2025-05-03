@@ -34,13 +34,16 @@ def test_step():
     params.dt = 0.1
     params.num_particles = 1
     params.num_tiles = 1
+    params.geometry_type = 0
+    params.Nstep = 1
 
     x,m = pyfluid.simulate_step(particles, meshes, params)
     
-    assert x[0].posx <= 0.1 + 1e-5 and x[0].posx >= 0.1 - 1e-5
-    assert x[0].posy == 0.0
-    assert x[0].posz == 0.0
     assert x[0].vx == 1.0
     assert x[0].vy == 0.0
     assert x[0].vz == 0.0
+    assert x[0].posx <= 0.1 + 1e-5 and x[0].posx >= 0.1 - 1e-5, f"Position x is not correct: {x[0].posx}"
+    assert x[0].posy == 0.0
+    assert x[0].posz == 0.0
+    
     
